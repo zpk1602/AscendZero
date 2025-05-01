@@ -20,6 +20,8 @@ void UHealthComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
+
+	UE_LOG(LogTemp, Warning, TEXT("%s has spawned with %f health."), *GetOwner()->GetName(), CurrentHealth);
 	
 }
 
@@ -30,5 +32,39 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+// Method to initialize health, allowing for multiple customizable health values
+void UHealthComponent::InitializeHealth(float HealthMultiplier)
+{
+	MaxHealth = BaseMaxHealth * HealthMultiplier;
+	CurrentHealth = MaxHealth;
+	UE_LOG(LogTemp, Warning, TEXT("Initial Health has been set to %f."), MaxHealth);
+}
+
+float UHealthComponent::GetHealth() const
+{
+	return CurrentHealth;
+}
+
+void UHealthComponent::SetHealth(float DamageTaken)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s has taken %f damage!"), *GetOwner()->GetName(), DamageTaken);
+
+	// Ignore no damage or no health possible states
+	if (DamageTaken <= 0.f || CurrentHealth <= 0.f) return;
+
+	// Subtract damage from health
+	CurrentHealth -= DamageTaken;
+
+	// Kill the character if they have no health
+	if (CurrentHealth <= 0) {
+		Death();
+	}
+}
+
+void UHealthComponent::Death()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s has died."), *GetOwner()->GetName());
 }
 
